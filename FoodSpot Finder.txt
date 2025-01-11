@@ -1,0 +1,146 @@
+import { useState, useEffect } from 'react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
+
+const mockRestaurants = [
+  {
+    name: "The Rustic Kitchen",
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
+    contact: "+1 234-567-8900",
+    menu: ["Pizza Margherita", "Pasta Carbonara", "Tiramisu"]
+  },
+  {
+    name: "Spice Garden",
+    rating: 4.8,
+    image: "https://images.unsplash.com/photo-1552566626-52f8b828add9",
+    contact: "+1 234-567-8901",
+    menu: ["Butter Chicken", "Naan", "Biryani"]
+  },
+  {
+    name: "Ocean's Delight",
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b",
+    contact: "+1 234-567-8902",
+    menu: ["Grilled Salmon", "Seafood Pasta", "Fish Tacos"]
+  }
+];
+
+export default function FoodSpotFinder() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [restaurants, setRestaurants] = useState([]);
+  const [selectedMenu, setSelectedMenu] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      alert('Please enter a location');
+      return;
+    }
+
+    setLoading(true);
+    setTimeout(() => {
+      setRestaurants(mockRestaurants);
+      setLoading(false);
+    }, 1500);
+  };
+
+  const showMenu = (restaurant) => {
+    setSelectedMenu(restaurant);
+    setMenuOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="neu-brutal bg-[#5BC0EB] p-6 mb-8">
+          <h1 className="text-4xl font-bold text-center">🍽️ FoodSpot Finder</h1>
+        </div>
+
+        <div className="neu-brutal bg-[#FDE74C] p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4">
+            <Input
+              type="text"
+              placeholder="Enter location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="neu-brutal bg-white p-3 flex-grow text-lg"
+            />
+            <Button
+              onClick={handleSearch}
+              className="neu-brutal bg-[#9BC53D] hover:bg-[#8AB02E] px-8 py-3 text-lg font-bold"
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-16 w-16 animate-spin" />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {restaurants.map((restaurant, index) => (
+            <Card key={index} className="neu-brutal bg-white">
+              <CardContent className="p-4">
+                <img
+                  src={restaurant.image}
+                  alt={restaurant.name}
+                  className="w-full h-48 object-cover mb-4 neu-brutal"
+                />
+                <h2 className="text-xl font-bold mb-2">{restaurant.name}</h2>
+                <div className="flex items-center mb-2">
+                  <span className="text-yellow-500">
+                    {'★'.repeat(Math.floor(restaurant.rating))}
+                    {'☆'.repeat(5 - Math.floor(restaurant.rating))}
+                  </span>
+                  <span className="ml-2">{restaurant.rating}</span>
+                </div>
+                <p className="mb-2">📞 {restaurant.contact}</p>
+                <Button
+                  onClick={() => showMenu(restaurant)}
+                  className="neu-brutal bg-[#E55934] hover:bg-[#D54824] text-white w-full font-bold"
+                >
+                  View Menu
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <AlertDialog open={menuOpen} onOpenChange={setMenuOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {selectedMenu && `Menu for ${selectedMenu.name}`}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {selectedMenu && selectedMenu.menu.map((item, index) => (
+                  <div key={index} className="py-1">{item}</div>
+                ))}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <style jsx global>{`
+          .neu-brutal {
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0px #000;
+            transition: all 0.2s ease;
+          }
+          .neu-brutal:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #000;
+          }
+        `}</style>
+      </div>
+    </div>
+  );
+}
